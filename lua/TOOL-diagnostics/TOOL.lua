@@ -3,6 +3,14 @@ local M = {}
 local namespace = nil
 local config = require('TOOL.config')
 
+-- Check that the content of an external tool result contains the filename of the provided buffer.
+-- Helpful for limiting the results only to the currently opened file when a tool might scan 
+-- entire directories.
+-- local function matches_filename(filename, bufname)
+-- 	local pattern = vim.pesc(filename) .. "$"
+-- 	return bufname:match(pattern) ~= nil
+-- end
+
 -- Check for necessary fields from the JSON response.
 local function is_valid_diagnostic(result)
 end
@@ -54,7 +62,8 @@ function M.scan()
 
 				-- Debugging
 				-- TODO check nil when creating the file handle
-				local f = io.open("/tmp/nvim_debug_TOOL.log", "a")
+				local logfile = "/tmp/nvim_debug_TOOL.log"
+				local f = io.open(logfile, "a")
 				f:write(vim.inspect(vim.fn.join(full_cmd, " ")) .. "\n")
 				f:close()
 
@@ -71,7 +80,7 @@ function M.scan()
 						local ok, parsed = pcall(vim.json.decode, obj.stdout)
 						if ok and parsed then
 							-- Debugging
-							local f = io.open("/tmp/nvim_debug.log", "a")
+							f = io.open(logfile, "a")
 							f:write(vim.inspect(parsed) .. "\n")
 							f:close()
 
